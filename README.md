@@ -62,18 +62,16 @@ O projeto precisa de um arquivo `config.ini` para centralizar configurações do
 Como o conteúdo exato depende da implementação de `app.config`, abaixo está um modelo sugerido. Ajuste os nomes das seções e chaves conforme o que estiver definido em `app/config.py`.
 
 ```ini
-[rumba]
-dll_path = C:/Program Files (x86)/Micro Focus/RUMBA/system/ehlapi32.Dll
-default_terminal = D
-
-[logs]
-log_dir = logs
-log_name = rumba_operations
-
 [cics]
-user = seu_usuario
-password = sua_senha
-environment = producao
+id = your_id
+password = your_password
+
+[rhelp]
+id = your_id
+password = your_password
+
+[32bit_python]
+path = C:/Users/seu_id/AppData/Local/Programs/Python/Python313-32/python.exe
 ```
 
 ---
