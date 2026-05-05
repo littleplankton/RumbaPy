@@ -1,0 +1,27 @@
+# Python specific
+*.pyc
+__pycache__/
+venv/
+.venv
+data/
+cache/
+*.log
+
+# Environment variables
+.env
+
+# IDE specific
+.vscode/
+.idea/
+.cache/
+
+# Operating System
+.DS_Store
+Thumbs.db
+
+# Arquivos
+*.xlsx
+*.csv
+*.xlsm
+*.parquet
+*.html
