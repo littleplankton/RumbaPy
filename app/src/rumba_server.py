@@ -2,9 +2,6 @@
 Servidor persistente para o Rumba que mantém sessões ativas.
 Este script deve ser executado como processo Python 32-bit.
 """
-from rumba_api import RumbaAPI, ERROR_CODES
-from ..config import config as cf
-
 from typing import Dict, Any
 from pathlib import Path
 
@@ -14,7 +11,17 @@ import argparse
 import socket
 import time
 import json
+import sys
 import os
+
+# Configurar caminhos para importações
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.abspath(os.path.join(script_dir, '..', '..'))
+sys.path.insert(0, project_root)
+
+from app.src.rumba_api import RumbaAPI, ERROR_CODES
+from app.config import config as cf
+
 
 config = cf.Config()
 log = cf.Logger('rumba_server', Path(os.path.join('..', '..', 'logs')))
