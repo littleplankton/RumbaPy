@@ -3,18 +3,120 @@
 - **Autor:** Eduardo Camargo da Silva
 - **Criação:** Novembro de 2024
 
+# RumbaPy
+
+Automação de terminais RUMBA utilizando Python e integração com a DLL `ehlapi32.Dll`.
+
+O projeto fornece uma base para criar rotinas automatizadas em sistemas legados acessados por terminais RUMBA, como CICS e RHELP, simulando interações de usuário por meio de escrita em tela, leitura de posições e envio de teclas.
+
+---
+
 ## Visão geral
 
 Este projeto automatiza interações com terminais RUMBA utilizando a classe `RumbaClient`.
 
-A automação depende de comunicação com o RUMBA por meio da DLL `ehlapi32.Dll`, localizada em:
+A comunicação com o RUMBA depende da DLL `ehlapi32.Dll`, localizada normalmente em:
 
 ```text
 C:/Program Files (x86)/Micro Focus/RUMBA/system/ehlapi32.Dll
 ```
 
-Como essa DLL é 32-bit, o ambiente que acessa diretamente o RUMBA precisa usar **Python 32-bit**.
+Como essa DLL é **32-bit**, o ambiente que acessa diretamente o RUMBA precisa usar **Python 32-bit**.
 
+O projeto também pode usar um ambiente Python **64-bit** separado para desenvolvimento geral, manipulação de dados e execução de rotinas auxiliares.
+
+---
+
+## Setup inicial
+
+### Programas necessários
+
+Git:
+
+```text
+https://git-scm.com/download/win
+```
+
+Visual Studio Code:
+
+```text
+https://update.code.visualstudio.com/latest/win32-x64-user/stable
+```
+
+Python 3.13.2 para Windows 64-bit:
+
+```text
+https://www.python.org/ftp/python/3.13.2/python-3.13.2-amd64.exe
+```
+
+Python 3.13.2 para Windows 32-bit:
+
+```text
+https://www.python.org/ftp/python/3.13.2/python-3.13.2.exe
+```
+
+> Observação: os links do Python acima são fixos para a versão **3.13.2**.
+
+---
+
+### Configuração do Visual Studio Code
+
+Após instalar o Visual Studio Code:
+
+1. Abra o VS Code.
+2. Vá em **Extensions** no menu lateral.
+3. Procure por **Python**.
+4. Instale a extensão oficial da **Microsoft**.
+
+---
+
+### Clonar o repositório com Git
+
+Após instalar o Git:
+
+1. Escolha uma pasta no computador para salvar o projeto.
+
+   Exemplo recomendado:
+
+   ```text
+   C:\Projetos
+   ```
+
+   Evite pastas sincronizadas com OneDrive, como:
+
+   - `Documentos`
+   - `Desktop`
+   - `Área de Trabalho`
+
+   Pastas sincronizadas podem causar problemas com o Git, como conflitos de sincronização, arquivos travados ou alterações inesperadas.
+
+2. Abra o **Prompt de Comando** ou **PowerShell**.
+
+3. Navegue até a pasta escolhida:
+
+   ```bat
+   cd C:\Projetos
+   ```
+
+4. Execute o comando para baixar o projeto:
+
+   ```bat
+   git clone https://github.com/littleplankton/RumbaPy.git
+   ```
+
+5. Entre na pasta do projeto:
+
+   ```bat
+   cd RumbaPy
+   ```
+
+6. Para abrir o projeto no Visual Studio Code, execute:
+
+   ```bat
+   code .
+   ```
+
+---
 
 ## Terminais suportados
 
@@ -22,7 +124,7 @@ O código suporta três tipos de terminais, definidos pelo parâmetro `terminal_
 
 | Terminal | Exemplo de uso | Uso principal |
 |---|---|---|
-| `A` | `RumbaClient(terminal_type='A')` | Usado majoritariamente em automações no sistema **RHELP do C1**. |
+| `A` | `RumbaClient(terminal_type='A')` | Usado principalmente em automações no sistema **RHELP do C1**. |
 | `D` | `RumbaClient(terminal_type='D')` | Usado para acesso ao **CICS**. |
 | `Z` | `RumbaClient(terminal_type='Z')` | Também usado para acesso ao **CICS**. |
 
@@ -34,13 +136,14 @@ from app.src import RumbaClient
 cics = RumbaClient(terminal_type='D')
 ```
 
+---
 
 ## Estrutura esperada do projeto
 
 Uma estrutura mínima recomendada é:
 
 ```text
-projeto/
+RumbaPy/
 ├─ app/
 │  ├─ __init__.py
 │  ├─ src.py
@@ -74,6 +177,18 @@ password = your_password
 path = C:/Users/seu_id/AppData/Local/Programs/Python/Python313-32/python.exe
 ```
 
+> Importante: não versionar credenciais reais no GitHub. Se o arquivo `config.ini` contiver usuário, senha ou outros dados sensíveis, ele deve ser adicionado ao `.gitignore`.
+
+Exemplo de entrada no `.gitignore`:
+
+```gitignore
+config.ini
+logs/
+.venv/
+__pycache__/
+*.pyc
+```
+
 ---
 
 ## Necessidade de duas versões de Python
@@ -82,15 +197,15 @@ O projeto deve trabalhar com duas arquiteturas de Python:
 
 | Ambiente | Arquitetura | Uso recomendado |
 |---|---:|---|
-| Python global 32-bit | 32-bit | Acesso ao RUMBA via `ehlapi32.Dll` e automações que dependem de `pywin32`. |
-| Python com `.venv` | 64-bit | Execução do restante do projeto, manipulação de dados e desenvolvimento geral. |
+| Python global 32-bit | 32-bit | Acesso direto ao RUMBA via `ehlapi32.Dll` e automações que dependem de `pywin32`. |
+| Python com `.venv` | 64-bit | Desenvolvimento geral, manipulação de dados e execução de rotinas auxiliares. |
 
 Motivo principal:
 
 - A DLL `ehlapi32.Dll` é 32-bit.
 - Bibliotecas Python carregadas no mesmo processo precisam ter arquitetura compatível com o interpretador Python.
 - Portanto, o acesso direto ao RUMBA deve ocorrer em Python 32-bit.
-- O ambiente 64-bit pode ser usado para rotinas auxiliares, processamento de arquivos e execução geral do projeto.
+- O ambiente 64-bit pode ser usado para rotinas auxiliares, processamento de arquivos e desenvolvimento geral.
 
 ---
 
@@ -119,26 +234,37 @@ Substitua `3.13` pela versão instalada na máquina, se necessário.
 
 ### Instalação das bibliotecas no Python 32-bit global
 
-Use o terminal apontando para a versão 32-bit.  
-OBS: troque "a464187" por seu id de usuário.
+Use o interpretador Python 32-bit para instalar as bibliotecas necessárias ao acesso direto ao RUMBA.
+
+Troque `seu_id` pelo seu usuário do Windows:
 
 ```bat
-C:/Users/a464187/AppData/Local/Programs/Python/Python313-32/python.exe -m pip install --upgrade pip
-C:/Users/a464187/AppData/Local/Programs/Python/Python313-32/python.exe -m pip install pywin32 pythoncom
+C:/Users/seu_id/AppData/Local/Programs/Python/Python313-32/python.exe -m pip install --upgrade pip
+C:/Users/seu_id/AppData/Local/Programs/Python/Python313-32/python.exe -m pip install pywin32 pandas openpyxl
 ```
 
-### Criar o `.venv` no projeto Python 64-bit
-
-Acesse a pasta do projeto 64-bit:
+Após instalar o `pywin32`, caso necessário, execute:
 
 ```bat
-cd C:\Caminho\Para\Projeto
+C:/Users/seu_id/AppData/Local/Programs/Python/Python313-32/python.exe -m pywin32_postinstall -install
 ```
 
-Crie o ambiente virtual:
+> Observação: o módulo `pythoncom` faz parte do pacote `pywin32`. Não é necessário instalar `pythoncom` separadamente com `pip`.
+
+---
+
+### Criar o `.venv` no projeto com Python 64-bit
+
+Acesse a pasta do projeto:
 
 ```bat
-py -m venv .venv
+cd C:\Projetos\RumbaPy
+```
+
+Crie o ambiente virtual usando Python 64-bit:
+
+```bat
+py -3.13-64 -m venv .venv
 ```
 
 Ative o ambiente virtual:
@@ -153,8 +279,42 @@ Atualize o `pip`:
 python -m pip install --upgrade pip
 ```
 
-Instale as bibliotecas necessárias:
+Instale as bibliotecas necessárias no ambiente 64-bit:
 
 ```bat
 python -m pip install pandas openpyxl pyarrow pyodbc numpy
 ```
+
+---
+
+## Exemplo básico de uso
+
+```python
+from app.src import RumbaClient
+
+cics = RumbaClient(terminal_type='D')
+
+cics.logon_cics()
+cics.copy_string_to_ps(1, 2, 'SPRE')
+cics.send_key('ENTER')
+```
+
+Principais operações usadas na automação:
+
+- `copy_string_to_ps(...)`: escreve texto em uma posição específica da tela.
+- `copy_ps_to_string(...)`: lê texto de uma posição específica da tela.
+- `send_key(...)`: envia teclas como `ENTER`, `F6`, `F10`, `F11`, entre outras.
+- `screen_load(...)`: aguarda o carregamento de uma tela com base em coordenadas e texto esperado.
+
+---
+
+## Observações importantes
+
+- O RUMBA deve estar instalado na máquina.
+- A DLL `ehlapi32.Dll` deve existir no caminho configurado.
+- O terminal RUMBA precisa estar aberto/configurado conforme o tipo de sessão usada (`A`, `D` ou `Z`).
+- O Python 32-bit é obrigatório para carregar a DLL 32-bit.
+- O arquivo `config.ini` deve estar configurado antes da execução das automações.
+- Não publique credenciais reais no GitHub.
+
+---
